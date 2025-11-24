@@ -191,6 +191,16 @@ class BrowserContextFactory:
             f.write(preference_file_content)
 
     @staticmethod
+    def get_persistent_user_data_dir(organization_id: str, browser_session_id: str) -> str:
+        user_data_dir = (
+            Path(settings.PERSISTENT_BROWSER_SESSIONS_PATH)
+            / organization_id
+            / browser_session_id
+        )
+        user_data_dir.mkdir(parents=True, exist_ok=True)
+        return str(user_data_dir)
+
+    @staticmethod
     def build_browser_args(
         proxy_location: ProxyLocation | None = None,
         cdp_port: int | None = None,
@@ -444,7 +454,17 @@ async def _create_headless_chromium(
             extra_http_headers=extra_http_headers,
         )
 
-    user_data_dir = make_temp_directory(prefix="skyvern_browser_")
+    user_data_dir = kwargs.get("user_data_dir")
+    if user_data_dir is None:
+        organization_id = kwargs.get("organization_id")
+        browser_session_id = kwargs.get("browser_session_id")
+        if organization_id and browser_session_id:
+            user_data_dir = BrowserContextFactory.get_persistent_user_data_dir(
+                organization_id=organization_id,
+                browser_session_id=browser_session_id,
+            )
+        else:
+            user_data_dir = make_temp_directory(prefix="skyvern_browser_")
     download_dir = initialize_download_dir()
     BrowserContextFactory.update_chromium_browser_preferences(
         user_data_dir=user_data_dir,
@@ -479,7 +499,17 @@ async def _create_headful_chromium(
             extra_http_headers=extra_http_headers,
         )
 
-    user_data_dir = make_temp_directory(prefix="skyvern_browser_")
+    user_data_dir = kwargs.get("user_data_dir")
+    if user_data_dir is None:
+        organization_id = kwargs.get("organization_id")
+        browser_session_id = kwargs.get("browser_session_id")
+        if organization_id and browser_session_id:
+            user_data_dir = BrowserContextFactory.get_persistent_user_data_dir(
+                organization_id=organization_id,
+                browser_session_id=browser_session_id,
+            )
+        else:
+            user_data_dir = make_temp_directory(prefix="skyvern_browser_")
     download_dir = initialize_download_dir()
     BrowserContextFactory.update_chromium_browser_preferences(
         user_data_dir=user_data_dir,
@@ -682,6 +712,7 @@ class BrowserState:
         extra_http_headers: dict[str, str] | None = None,
         browser_address: str | None = None,
         browser_profile_id: str | None = None,
+        browser_session_id: str | None = None,
     ) -> None:
         if self.browser_context is None:
             LOG.info("creating browser context")
@@ -700,6 +731,7 @@ class BrowserState:
                 extra_http_headers=extra_http_headers,
                 browser_address=browser_address,
                 browser_profile_id=browser_profile_id,
+                browser_session_id=browser_session_id,
             )
             self.browser_context = browser_context
             self.browser_artifacts = browser_artifacts
@@ -869,6 +901,7 @@ class BrowserState:
         extra_http_headers: dict[str, str] | None = None,
         browser_address: str | None = None,
         browser_profile_id: str | None = None,
+        browser_session_id: str | None = None,
     ) -> Page:
         page = await self.get_working_page()
         if page is not None:
@@ -885,6 +918,7 @@ class BrowserState:
                 extra_http_headers=extra_http_headers,
                 browser_address=browser_address,
                 browser_profile_id=browser_profile_id,
+                browser_session_id=browser_session_id,
             )
         except Exception as e:
             error_message = str(e)
@@ -903,6 +937,7 @@ class BrowserState:
                 extra_http_headers=extra_http_headers,
                 browser_address=browser_address,
                 browser_profile_id=browser_profile_id,
+                browser_session_id=browser_session_id,
             )
         page = await self.__assert_page()
 
@@ -920,6 +955,7 @@ class BrowserState:
                 extra_http_headers=extra_http_headers,
                 browser_address=browser_address,
                 browser_profile_id=browser_profile_id,
+                browser_session_id=browser_session_id,
             )
             page = await self.__assert_page()
         return page
