@@ -35,6 +35,7 @@ class BrowserManager:
         extra_http_headers: dict[str, str] | None = None,
         browser_address: str | None = None,
         browser_profile_id: str | None = None,
+        browser_session_id: str | None = None,
     ) -> BrowserState:
         pw = await async_playwright().start()
         (
@@ -52,6 +53,7 @@ class BrowserManager:
             extra_http_headers=extra_http_headers,
             browser_address=browser_address,
             browser_profile_id=browser_profile_id,
+            browser_session_id=browser_session_id,
         )
         return BrowserState(
             pw=pw,
@@ -118,6 +120,7 @@ class BrowserManager:
                 organization_id=task.organization_id,
                 extra_http_headers=task.extra_http_headers,
                 browser_address=task.browser_address,
+                browser_session_id=browser_session_id,
             )
 
             if browser_session_id:
@@ -139,6 +142,7 @@ class BrowserManager:
             organization_id=task.organization_id,
             extra_http_headers=task.extra_http_headers,
             browser_address=task.browser_address,
+            browser_session_id=browser_session_id,
         )
         return browser_state
 
@@ -198,6 +202,7 @@ class BrowserManager:
                 extra_http_headers=workflow_run.extra_http_headers,
                 browser_address=workflow_run.browser_address,
                 browser_profile_id=browser_profile_id,
+                browser_session_id=browser_session_id,
             )
 
             if browser_session_id:
@@ -220,6 +225,7 @@ class BrowserManager:
             extra_http_headers=workflow_run.extra_http_headers,
             browser_address=workflow_run.browser_address,
             browser_profile_id=browser_profile_id,
+            browser_session_id=browser_session_id,
         )
         return browser_state
 

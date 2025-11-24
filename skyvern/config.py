@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     HAR_PATH: str | None = "./har"
     LOG_PATH: str = "./log"
     TEMP_PATH: str = "./temp"
+    PERSISTENT_BROWSER_SESSIONS_PATH: str = "./persistent_browser_sessions"
     BROWSER_ACTION_TIMEOUT_MS: int = 5000
     BROWSER_SCREENSHOT_TIMEOUT_MS: int = 20000
     BROWSER_LOADING_TIMEOUT_MS: int = 60000
